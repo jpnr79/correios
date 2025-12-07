@@ -24,3 +24,31 @@ function plugin_glpi_correios_install() {
 function plugin_glpi_correios_uninstall() {
     return true;
 }
+
+// Backwards/alternate function names
+// Some GLPI installations expect functions named `plugin_*_correios` (plugin folder name)
+// while this file used `plugin_*_glpi_correios`. Provide small wrappers so both
+// signatures work and avoid fatal "method must be defined" errors.
+if (!function_exists('plugin_init_correios')) {
+    function plugin_init_correios() {
+        return plugin_init_glpi_correios();
+    }
+}
+
+if (!function_exists('plugin_version_correios')) {
+    function plugin_version_correios() {
+        return plugin_version_glpi_correios();
+    }
+}
+
+if (!function_exists('plugin_correios_install')) {
+    function plugin_correios_install() {
+        return plugin_glpi_correios_install();
+    }
+}
+
+if (!function_exists('plugin_correios_uninstall')) {
+    function plugin_correios_uninstall() {
+        return plugin_glpi_correios_uninstall();
+    }
+}
