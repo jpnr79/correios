@@ -1,9 +1,25 @@
 function plugin_correios_check_prerequisites() {
-    if (version_compare(GLPI_VERSION, '9.5', 'lt')) {
-        Toolbox::logInFile('correios', sprintf(
+    // GLPI 11+ compatible version check: read from version file
+    $glpi_version = 'unknown';
+    $version_file = dirname(__DIR__, 2) . '/version';
+    if (file_exists($version_file)) {
+        $glpi_version = trim(file_get_contents($version_file));
+    }
+    if (version_compare($glpi_version, '9.5', '<')) {
+        $msg = sprintf(
             'ERROR [%s:%s] GLPI version too low: %s, user=%s',
-            __FILE__, __FUNCTION__, GLPI_VERSION, $_SESSION['glpiname'] ?? 'unknown'
-        ));
+            __FILE__, __FUNCTION__, $glpi_version, $_SESSION['glpiname'] ?? 'unknown'
+        );
+        try {
+            if (class_exists('Toolbox') && method_exists('Toolbox', 'logInFile')) {
+                @Toolbox::logInFile('correios', $msg);
+            } else {
+                $logfile = __DIR__ . '/correios_error.log';
+                file_put_contents($logfile, $msg . "\n", FILE_APPEND);
+            }
+        } catch (\Throwable $e) {
+            // Fallback: ignore logging errors
+        }
         echo "This plugin requires GLPI >= 9.5";
         return false;
     }
